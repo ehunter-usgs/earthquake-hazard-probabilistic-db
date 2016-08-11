@@ -38,7 +38,6 @@ INSERT INTO vs30 (value, display, displayorder) VALUES
   ('259',  '259 m/s - Site Class D',  6);
 INSERT INTO vs30 (value, display, displayorder) VALUES
   ('180',  '180 m/s - D/E Boundary',  7);
-);
 
 
 INSERT INTO edition (value, display, displayOrder) VALUES
