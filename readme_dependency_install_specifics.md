@@ -39,7 +39,7 @@ Readme dependencies
 1. Install PostgreSQL and PostGIS (?)
 
 1. Install and setup Docker
-  1. install Docker `https://www.docker.com`
+  1. Install [Docker](https://www.docker.com)
   2. Build a container (?)
   3. Run the container using the tag (?)
   4. Connect to running container (?)
@@ -104,8 +104,8 @@ Readme dependencies
 
   3. Start/Stop PostgreSQL
 
-    After running the `initdb` command, you should see a success message. Use the
-    `pg_ctl` utility to start the database.
+    After running the `initdb` command, you should see a success message. Use
+    the `pg_ctl` utility to start the database.
 
     ```bash
     $ pg_ctl -D <db_directory> start
@@ -129,7 +129,7 @@ Readme dependencies
     > `psql postgres <username>`
 
 7. Install and setup Docker
-  1. install Docker `https://www.docker.com`
+  1. Install [Docker](https://www.docker.com)
   2. Build a container
     From root of project, run:
     ```
