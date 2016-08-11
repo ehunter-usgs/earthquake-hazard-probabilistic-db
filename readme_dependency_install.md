@@ -5,3 +5,5 @@ project:
 1. Node
 1. PostgreSQL and PostGIS
 1. Docker
+
+[Dependency install specifics](readme_dependency_install_specifics.md)
