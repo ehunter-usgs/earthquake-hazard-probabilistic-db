@@ -135,8 +135,36 @@ Readme dependencies
     ```
     docker build -t earthquake-hazard-probabilistic-db:version .
     ```
-  3. Run the container using the tag
-    ```
-    docker run -it -p ????:???? earthquake-hazard-probabilistic-db:version
-    ```
-  4. Connect to running container (?)
+  3. Run the container
+    1. Start the container using the image tag
+      ```
+      docker run --name earthquake-hazard-probabilistic-db -d -p ????:???? usgs/earthquake-hazard-probabilistic-db:latest
+      ```
+
+    2. Configure started container
+
+    3. Connect to running container on terminal
+      ```
+      docker exec -it earthquake-hazard-probabilistic-db /bin/bash
+      ```
+
+    4. Run pre-install to configure application (?)
+      ```
+      src/lib/pre-install
+      ```
+
+    5. Exit the container
+      ```
+      exit
+      ```
+
+    6. Restart the container to load the updated configuration
+      ```
+      docker stop earthquake-hazard-probabilistic-db
+      docker start earthquake-hazard-probabilistic-db
+      ```
+
+    7. Connect to running container in browser
+      ```
+      http://localhost:????/ws/earthquake-hazard-probabilistic-db/
+      ```
