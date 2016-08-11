@@ -36,7 +36,7 @@ Readme dependencies
 [Cygwin]: http://cygwin.com/install.html
 [Node]: http://nodejs.org/download/
 
-1. Install PostgreSQL and PostGIS (?)
+1. Install PostgreSQL and PostGIS
 
 1. Install and setup Docker
   1. Install [Docker](https://www.docker.com)
