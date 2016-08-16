@@ -1,0 +1,31 @@
+{
+  "name": "earthquake-hazard-probabilistic-db",
+  "version": "0.1.0",
+  "description": "Seismic hazard curve database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usgs/earthquake-hazard-probabilistic-db.git"
+  },
+  "keywords": [
+    "Earthquake",
+    "Hazard",
+    "Hazard",
+    "Curve",
+    "Seismic"
+  ],
+  "author": "Eric Martinez <emartinez@usgs.gov> (http://earthquake.usgs.gov/)",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/usgs/earthquake-hazard-probabilistic-db/issues"
+  },
+  "homepage": "https://github.com/usgs/earthquake-hazard-probabilistic-db#readme",
+  "dependencies": {
+    "extend": "^3.0.0",
+    "inquirer": "^1.1.2",
+    "pg": "^6.1.0"
+  }
+}
