@@ -70,15 +70,28 @@ var Database = function (options) {
   };
 
   _this.grant = function (user, privileges) {
+    privileges = privileges.join(', ');
+
+    // Grant privileges on existing tables
     return _this.connection.query(`
-      ALTER DEFAULT PRIVILEGES
-      IN SCHEMA
-        PUBLIC
       GRANT
-        ${privileges.join(', ')}
-      ON TABLES TO
+        ${privileges}
+      ON ALL TABLES IN SCHEMA
+        public
+      TO
         ${user}
-    `);
+    `).then(() => {
+      // Grant privileges on tables created subsequently
+      return _this.connection.query(`
+        ALTER DEFAULT PRIVILEGES
+        IN SCHEMA
+          PUBLIC
+        GRANT
+          ${privileges}
+        ON TABLES TO
+          ${user}
+      `);
+    });
   };
 
   _this.loadData = function () {
