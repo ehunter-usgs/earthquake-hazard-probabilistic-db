@@ -66,26 +66,32 @@ installer.configure().then((config) => {
           var installChain;
 
           if (answers.CREATE_ACCOUNTS) {
+            process.stdout.write(' - Creating accounts\n');
             installChain = dbInstaller.createAccount(
               config.DB_READ_USERNAME,
               config.DB_READ_PASSWORD
             ).then(() => {
+              process.stdout.write(' - Granting access\n');
               return dbInstaller.grant(config.DB_READ_USERNAME, ['SELECT']);
             });
           } else {
+            // A dummy promise to start the chain
             installChain = Promise.resolve();
           }
 
           if (answers.LOAD_SCHEMA) {
             installChain = installChain.then(() => {
+              process.stdout.write(' - Loading schema\n');
               return dbInstaller.execFile(installer.config.schemaFile);
             }).then(() => {
+              process.stdout.write(' - Loading metaadta\n');
               return dbInstaller.execFile(installer.config.metadataFile);
             });
           }
 
           if (answers.LOAD_DATA) {
             installChain = installChain.then(() => {
+              process.stdout.write(' - Loading data\n');
               return dbInstaller.loadFilesFromFtp(
                   installer.config.dataFiles, installer.config);
             });

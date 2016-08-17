@@ -203,13 +203,16 @@ var Database = function (options) {
   };
 
   _this.loadFileFromFtp = function (dataFile, config) {
+    process.stdout.write(`   File: "${dataFile.path}"\n`);
     return _this.getDataset(dataFile).then((dataset) => {
+      process.stdout.write('   ... downloading ... ');
       return _this.downloader.downloadFile(dataFile.path, config.scratchDir,
           {gzip: true, tar: true}
       ).then(() => {
         // TODO :: Less hacky way of finding downloaded file...
         var sourceFile = config.scratchDir + path.sep + path.basename(
             dataFile.path.replace('.tar.gz', '.txt'));
+        process.stdout.write('parsing ... ');
         return _this.parser.parseFile(sourceFile, dataset.id);
       }).then((result) => {
         // Update dataset IML values
@@ -233,9 +236,12 @@ var Database = function (options) {
                 'COPY curve (datasetid, latitude, longitude, afe) FROM STDIN'));
             dataStream = fs.createReadStream(result.afeFile);
 
+            process.stdout.write('importing ... ');
             dataStream.pipe(queryStream).once('error', (err) => {
+              process.stdout.write('error!\n');
               reject(err);
             }).once('finish', () => {
+              process.stdout.write('done.\n');
               dataStream.close();
               resolve();
             });
