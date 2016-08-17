@@ -18,37 +18,45 @@ var FtpDownloader = function (options) {
 
   _initialize = function (options) {
     _this.ftp = new ftp();
+    _this.ftpReady = false;
+
+    _this.ftp.once('ready', () => { _this.ftpReady = true; });
+
     _this.ftp.connect(options.ftp || {});
   };
 
 
   _this.downloadFile = function (remoteFile, localDir, options) {
+    if (!_this.ftpReady) {
+      return _this.ftp.once('ready', () => {
+        _this.downloadFile(remoteFile, localDir, options);
+      });
+    }
+
     return new Promise((resolve, reject) => {
       options = options || {};
 
-      _this.ftp.once('ready', () => {
-        _this.ftp.get(remoteFile, (err, stream) => {
-          if (err) {
-            reject(err);
-          }
+      _this.ftp.get(remoteFile, (err, stream) => {
+        if (err) {
+          reject(err);
+        }
 
-          // Stream transforms ...
-          if (options.gzip) {
-            stream = stream.pipe(zlib.createGunzip());
-          }
+        // Stream transforms ...
+        if (options.gzip) {
+          stream = stream.pipe(zlib.createGunzip());
+        }
 
-          if (options.tar) {
-            stream.pipe(new tar.Extract({
-              path: fs.realpathSync(localDir)
-            }));
-          } else {
-            stream.pipe(fs.createWriteStream(
-                localDir + '/' + path.basename(remoteFile)));
-          }
+        if (options.tar) {
+          stream.pipe(new tar.Extract({
+            path: fs.realpathSync(localDir)
+          }));
+        } else {
+          stream.pipe(fs.createWriteStream(
+              localDir + '/' + path.basename(remoteFile)));
+        }
 
-          stream.once('close', () => {
-            resolve();
-          });
+        stream.once('close', () => {
+          resolve();
         });
       });
     });
