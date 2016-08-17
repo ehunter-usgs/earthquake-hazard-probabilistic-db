@@ -25,7 +25,11 @@
   "homepage": "https://github.com/usgs/earthquake-hazard-probabilistic-db#readme",
   "dependencies": {
     "extend": "^3.0.0",
+    "ftp": "^0.3.10",
     "inquirer": "^1.1.2",
-    "pg": "^6.1.0"
+    "pg": "^6.1.0",
+    "pg-copy-streams": "^1.1.1",
+    "rimraf": "^2.5.4",
+    "tar": "^2.2.1"
   }
 }
