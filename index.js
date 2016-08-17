@@ -13,25 +13,23 @@ process.chdir(__dirname);
 var createDbInstaller;
 
 createDbInstaller = function (config) {
-  return new Promise((resolve, reject) => {
-    var client,
-        db;
+  return new Promise((resolve/*, reject*/) => {
+    var connection,
+        dbInstaller;
 
-    client = new pg.Client({
+    connection = new pg.Client({
       database: config.DB_NAME,
       password: config.DB_ADMIN_PASSWORD,
       port: config.DB_PORT,
       user: config.DB_ADMIN_USERNAME
     });
 
-    client.connect((err) => {
-      if (err) {
-        reject(err);
-      }
+    connection.connect();
 
-      db = database(extend(true, {connection: client}, config));
-      resolve(db);
-    });
+    dbInstaller = database(extend(
+        true, {connection: connection}, installer.config));
+
+    resolve(dbInstaller);
   });
 };
 
@@ -80,13 +78,16 @@ installer.configure().then((config) => {
 
           if (answers.LOAD_SCHEMA) {
             installChain = installChain.then(() => {
-              dbInstaller.execFile(installer.config.schemaFile);
+              return dbInstaller.execFile(installer.config.schemaFile);
+            }).then(() => {
+              return dbInstaller.execFile(installer.config.metadataFile);
             });
           }
 
           if (answers.LOAD_DATA) {
             installChain = installChain.then(() => {
-              return dbInstaller.loadData();
+              return dbInstaller.loadFilesFromFtp(
+                  installer.config.dataFiles, installer.config);
             });
           }
 
