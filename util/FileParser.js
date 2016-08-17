@@ -27,7 +27,7 @@ var FileParser = function (options) {
     _this.numHeaderRows = options.numHeaderRows;
   };
 
-  _this._parseInputLine = function (line, imlData, afeStream) {
+  _this._parseInputLine = function (line, datasetid, imlData, afeStream) {
     var afe,
         latitude,
         longitude,
@@ -44,7 +44,7 @@ var FileParser = function (options) {
       longitude = tokens[2];
       afe = '{' + tokens.slice(3).join(',') + '}';
 
-      afeStream.write(`${latitude}\t${longitude}\t${afe}\n`);
+      afeStream.write(`${datasetid}\t${latitude}\t${longitude}\t${afe}\n`);
     }
   };
 
@@ -61,7 +61,7 @@ var FileParser = function (options) {
    *     a file where the "latitude\tlongitude{afe}" TSV file containing AFE
    *     data can be found.
    */
-  _this.parseFile = function (dataFile) {
+  _this.parseFile = function (dataFile, datasetid) {
     return new Promise((resolve, reject) => {
       var afeFile,
           afeStream,
@@ -89,7 +89,7 @@ var FileParser = function (options) {
         if (lineCount <= _this.numHeaderRows) {
           return;
         } else {
-          _this._parseInputLine(line, imlData, afeStream);
+          _this._parseInputLine(line, datasetid, imlData, afeStream);
         }
       }).on('error', (err) => {
         reject(err);
