@@ -4,10 +4,17 @@ ftproot = '/web/earthquake-hazard-tool';
 
 module.exports = {
   configFile: __dirname + '/../conf/config.json',
-  ftpHost: 'hazards.cr.usgs.gov',
-  ftpPort: 21,
+  downloader: {
+    ftp: {
+      host: 'hazards.cr.usgs.gov',
+      port: 21
+    }
+  },
   metadataFile: __dirname + '/../database/metadata.sql',
   nonInteractive: process.env.NON_INTERACTIVE === 'true',
+  parser: {
+    numHeaderRows: 3
+  },
   schemaFile: __dirname + '/../database/schema.sql',
   dataFiles: [
     {
