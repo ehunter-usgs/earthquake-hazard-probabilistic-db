@@ -1,8 +1,28 @@
 'use strict';
 
 
-var fs = require('fs');
+var copyFrom = require('pg-copy-streams').from,
+    extend = require('extend'),
+    FileParser = require('../util/FileParser'),
+    FtpDownloader = require('../util/FtpDownloader'),
+    fs = require('fs'),
+    os = require('os'),
+    path = require('path'),
+    rimraf = require('rimraf');
 
+
+var _DEFAULTS = {
+  connection: null,
+  downloader: {
+    ftp: {
+      host: 'localhost',
+      port: 21
+    }
+  },
+  parser: {
+    numHeaderRows: 3
+  }
+};
 
 var Database = function (options) {
   var _this,
@@ -20,7 +40,11 @@ var Database = function (options) {
   };
 
   _initialize = function (options) {
+    options = extend(true, {}, _DEFAULTS, options);
+
     _this.connection = options.connection;
+    _this.downloader = FtpDownloader(options.downloader);
+    _this.parser = FileParser(options.parser);
   };
 
 
@@ -69,6 +93,90 @@ var Database = function (options) {
     return _this.connection.query(fs.readFileSync(fileName).toString());
   };
 
+  _this.getDataset = function (config) {
+    var dataset;
+
+    dataset = {
+      edition: null,
+      id: null,
+      iml: [],
+      imt: null,
+      region: null,
+      vs30: null
+    };
+
+    // Find the ids based on the given values
+    return _this.connection.query(`
+      SELECT
+        edition.id AS editionid,
+        imt.id AS imtid,
+        region.id AS regionid,
+        vs30.id AS vs30id
+      FROM
+        edition,
+        imt,
+        region,
+        vs30
+      WHERE
+        edition.value = '${config.edition}'
+        AND imt.value = '${config.imt}'
+        AND region.value = '${config.region}'
+        AND vs30.value = '${config.vs30}'
+    `).then((result) => {
+      // Create the dataset object and db record using the ids
+      var row;
+
+      if (!result.rows.length) {
+        throw new Error('Failed to find ids for dataset values.');
+      }
+
+      row = result.rows[0];
+      dataset.editionid = row.editionid;
+      dataset.imtid = row.imtid;
+      dataset.regionid = row.regionid;
+      dataset.vs30id = row.vs30id;
+
+      return _this.connection.query(`
+        INSERT INTO
+          dataset
+        (
+          editionid,
+          imtid,
+          regionid,
+          vs30id
+        )
+        VALUES
+        (
+          ${dataset.editionid},
+          ${dataset.imtid},
+          ${dataset.regionid},
+          ${dataset.vs30id}
+        )
+      `);
+    }).then(() => {
+      // Find the id of the just-created db record
+      return _this.connection.query(`
+        SELECT
+          id
+        FROM
+          dataset
+        WHERE
+          editionid = ${dataset.editionid}
+          AND imtid = ${dataset.imtid}
+          AND regionid = ${dataset.regionid}
+          AND vs30id = ${dataset.vs30id}
+      `);
+    }).then((result) => {
+      // Update the dataset object with the db record id, return the dataset
+      if (result.rows.length) {
+        dataset.id = result.rows[0].id;
+        return dataset;
+      }
+
+      throw new Error('Could not find dataset for input parameters.');
+    });
+  };
+
   _this.grant = function (user, privileges) {
     privileges = privileges.join(', ');
 
@@ -94,11 +202,88 @@ var Database = function (options) {
     });
   };
 
-  _this.loadData = function () {
-    return new Promise((resolve/*, reject*/) => {
-      process.stderr.write('TODO :: loadData(inputFile)\n');
-      resolve();
+  _this.loadFileFromFtp = function (dataFile, config) {
+    return _this.getDataset(dataFile).then((dataset) => {
+      return _this.downloader.downloadFile(dataFile.path, config.scratchDir,
+          {gzip: true, tar: true}
+      ).then(() => {
+        // TODO :: Less hacky way of finding downloaded file...
+        var sourceFile = config.scratchDir + path.sep + path.basename(
+            dataFile.path.replace('.tar.gz', '.txt'));
+        return _this.parser.parseFile(sourceFile, dataset.id);
+      }).then((result) => {
+        // Update dataset IML values
+        return _this.connection.query(`
+          UPDATE
+            dataset
+          SET
+            iml = '{${result.imlData.join(',')}}'
+          WHERE
+            id = ${dataset.id}
+        `).then(() => {
+          return new Promise((resolve, reject) => {
+            var dataStream,
+                queryStream;
+
+            // TODO :: Drop indexes/constraints before doing a big data load,
+            //         Re-add the indexes/constraints afterwards. Perhaps
+            //         We should do this as part of loadFilesFromFtp ?
+
+            queryStream = _this.connection.query(copyFrom(
+                'COPY curve (datasetid, latitude, longitude, afe) FROM STDIN'));
+            dataStream = fs.createReadStream(result.afeFile);
+
+            dataStream.pipe(queryStream).once('error', (err) => {
+              reject(err);
+            }).once('finish', () => {
+              dataStream.close();
+              resolve();
+            });
+          });
+        });
+      });
     });
+  };
+
+  _this.loadFilesFromFtp = function (dataFiles, config) {
+    var result,
+        scratchDir;
+
+    result = _this.begin();
+
+    scratchDir = os.tmpdir() + path.sep +
+        'earthquake-hazard-probabilistic-db-downloads';
+
+    if (fs.existsSync(scratchDir)) {
+      rimraf.sync(scratchDir);
+    }
+
+    fs.mkdirSync(scratchDir);
+
+    dataFiles.forEach((dataFile) => {
+      result = result.then(() => {
+        return _this.loadFileFromFtp(dataFile, extend({},
+            {scratchDir: scratchDir}, config));
+      });
+    });
+
+    result = result.then(() => {
+      return _this.commit();
+    }).catch((err) => {
+      process.stderr.write(err + '\n');
+      return err;
+    }).then(() => {
+      return new Promise((resolve, reject) => {
+        rimraf(scratchDir, (err) => {
+          if (err) {
+            reject(err);
+          }
+          resolve();
+        });
+      });
+    });
+
+    return result;
   };
 
   _this.rollback = function () {
