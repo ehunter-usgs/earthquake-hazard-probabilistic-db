@@ -4,7 +4,12 @@
   "description": "Seismic hazard curve database",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "configure": "node bin/configure.js",
+    "install": "node bin/install.js",
+    "lint": "eslint \"**/*.js\"",
+    "test": "node test/test.js",
+    "uninstall": "node bin/uninstall.js",
+    "watch": "watch \"npm run lint && npm run test\" bin etc lib test"
   },
   "repository": {
     "type": "git",
@@ -34,5 +39,9 @@
   },
   "engines": {
     "node": "4.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.3.1",
+    "watch": "^0.19.2"
   }
 }
