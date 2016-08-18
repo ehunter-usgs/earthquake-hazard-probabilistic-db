@@ -1,0 +1,47 @@
+{
+  "name": "earthquake-hazard-probabilistic-db",
+  "version": "0.1.0",
+  "description": "Seismic hazard curve database",
+  "main": "index.js",
+  "scripts": {
+    "configure": "node bin/configure.js",
+    "install": "node bin/install.js",
+    "lint": "eslint \"**/*.js\"",
+    "test": "node test/test.js",
+    "uninstall": "node bin/uninstall.js",
+    "watch": "watch \"npm run lint && npm run test\" bin etc lib test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usgs/earthquake-hazard-probabilistic-db.git"
+  },
+  "keywords": [
+    "Earthquake",
+    "Hazard",
+    "Hazard",
+    "Curve",
+    "Seismic"
+  ],
+  "author": "Eric Martinez <emartinez@usgs.gov> (http://earthquake.usgs.gov/)",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/usgs/earthquake-hazard-probabilistic-db/issues"
+  },
+  "homepage": "https://github.com/usgs/earthquake-hazard-probabilistic-db#readme",
+  "dependencies": {
+    "extend": "^3.0.0",
+    "ftp": "^0.3.10",
+    "inquirer": "^1.1.2",
+    "pg": "^6.1.0",
+    "pg-copy-streams": "^1.1.1",
+    "rimraf": "^2.5.4",
+    "tar": "^2.2.1"
+  },
+  "engines": {
+    "node": "4.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.3.1",
+    "watch": "^0.19.2"
+  }
+}
