@@ -16,7 +16,9 @@ var configurer = Configurer({
 
 
 configurer.configure(extend({}, installConfig, {questions: questions}))
-.catch((err) => {
+.then((/*configuration*/) => {
+  process.stdout.write('Configuration complete.\n');
+}).catch((err) => {
   process.stderr.write(err + '\n');
   if (err.stack) {
     process.stderr.write(err.stack + '\n');
