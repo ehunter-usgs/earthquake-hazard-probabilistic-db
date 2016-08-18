@@ -42,7 +42,7 @@ module.exports = [
     default: 'web'
   },
   {
-    type: 'input',
+    type: 'password',
     name: 'DB_READ_PASSWORD',
     message: 'Database read-only password',
     default: 'web'

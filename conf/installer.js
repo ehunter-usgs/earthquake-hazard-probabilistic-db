@@ -10,12 +10,12 @@ module.exports = {
       port: 21
     }
   },
-  metadataFile: __dirname + '/../database/metadata.sql',
+  metadataFile: __dirname + '/../etc/metadata.sql',
   nonInteractive: process.env.NON_INTERACTIVE === 'true',
   parser: {
     numHeaderRows: 3
   },
-  schemaFile: __dirname + '/../database/schema.sql',
+  schemaFile: __dirname + '/../etc/schema.sql',
   dataFiles: [
     {
       edition: 'E2014R1',
