@@ -3,7 +3,7 @@ var ftproot;
 ftproot = '/web/earthquake-hazard-tool';
 
 module.exports = {
-  configFile: __dirname + '/../conf/config.json',
+  configFile: __dirname + '/config.json',
   downloader: {
     ftp: {
       host: 'hazards.cr.usgs.gov',
