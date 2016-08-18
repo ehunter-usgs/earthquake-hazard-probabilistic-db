@@ -19,12 +19,6 @@ module.exports = [
   },
   {
     type: 'input',
-    name: 'DB_SCHEMA',
-    message: 'Database schema',
-    default: 'public'
-  },
-  {
-    type: 'input',
     name: 'DB_ADMIN_USERNAME',
     message: 'Database admin username',
     default: 'postgres'
